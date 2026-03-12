@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AppWrite Test</title>
+    <!-- AppWrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+</head>
+<body>
+    <h1>AppWrite Connection Test</h1>
+    <div id="status">Testing connection...</div>
+
+    <script>
+        // Test the AppWrite connection
+        const client = new Appwrite.Client()
+            .setEndpoint("https://sgp.cloud.appwrite.io/v1")
+            .setProject("69b2a05d000ff1fe0013");
+
+        const statusDiv = document.getElementById('status');
+
+        client.ping()
+            .then(() => {
+                statusDiv.innerHTML = '✅ AppWrite connection successful!';
+                console.log('✅ AppWrite connection successful!');
+                console.log('Project ID:', '69b2a05d000ff1fe0013');
+                console.log('Project Name:', 'facebook');
+                console.log('Endpoint:', 'https://sgp.cloud.appwrite.io/v1');
+            })
+            .catch((error) => {
+                statusDiv.innerHTML = '❌ AppWrite connection failed: ' + error.message;
+                console.error('❌ AppWrite connection failed:', error);
+                console.log('Using fallback localStorage database for demonstration.');
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Supabase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/main/index.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <button onclick="testInsert()">Test Data Insert</button>
+    <button onclick="testSelect()">Test Data Select</button>
+    
+    <div id="output"></div>
+
+    <script>
+        const supabaseUrl = 'https://dhigeugkmnknsdykmclg.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoaWdldWdrbW5rbnNkeWttY2xnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMDk5NjIsImV4cCI6MjA4ODg4NTk2Mn0.8Q_7qlPm3ctByO0C4RK5D2v4njq3SKcX2J8knxAbfOE';
+        const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            document.getElementById('output').appendChild(div);
+        }
+
+        async function testConnection() {
+            log('Testing Supabase connection...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('accounts')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    log(`Connection failed: ${error.message}`, 'error');
+                    log('This usually means the table doesn\'t exist or has permission issues.', 'error');
+                } else {
+                    log('✅ Connection successful!', 'success');
+                    log(`Found ${data.length} records in accounts table`, 'info');
+                }
+            } catch (error) {
+                log(`Connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testInsert() {
+            log('Testing data insertion...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('accounts')
+                    .insert([{ email: 'test@example.com', password: 'test123' }]);
+
+                if (error) {
+                    log(`Insert failed: ${error.message}`, 'error');
+                    log('Check if the table exists and has proper permissions.', 'error');
+                } else {
+                    log('✅ Data inserted successfully!', 'success');
+                    log(`Inserted record ID: ${data[0].id}`, 'info');
+                }
+            } catch (error) {
+                log(`Insert error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSelect() {
+            log('Testing data retrieval...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('accounts')
+                    .select('*');
+
+                if (error) {
+                    log(`Select failed: ${error.message}`, 'error');
+                } else {
+                    log(`✅ Retrieved ${data.length} records`, 'success');
+                    data.forEach((record, index) => {
+                        log(`Record ${index + 1}: ID=${record.id}, Email=${record.email}`, 'info');
+                    });
+                }
+            } catch (error) {
+                log(`Select error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

